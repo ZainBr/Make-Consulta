@@ -16,19 +16,20 @@ st.set_page_config(
 CLIENT_ID = st.secrets["CLIENT_ID"]
 CLIENT_SECRET = st.secrets["CLIENT_SECRET"]
 
-# DETECÇÃO AUTOMÁTICA DE AMBIENTE:
+# --- DETECÇÃO AUTOMÁTICA DE AMBIENTE CORRIGIDA PARA STREAMLIT CLOUD ---
 try:
-    # Captura o host que está acessando o app no momento
     headers = st.context.headers
-    host = headers.get("Host", "")
+    # Na nuvem do Streamlit, o domínio público real fica no 'X-Forwarded-Host'
+    # O 'Host' padrão vem mascarado internamente como 'localhost'
+    host_publico = headers.get("X-Forwarded-Host", headers.get("Host", ""))
     
-    if "localhost" in host or "127.0.0.1" in host:
-        REDIRECT_URI = "https://make-consulta-xvbe6b9ut9es6i6bbemudm.streamlit.app"
+    if "streamlit.app" in host_publico:
+        REDIRECT_URI = "https://make-consulta-xvbe6b9ut9es6i6bbemudm.streamlit.app/"
     else:
-        REDIRECT_URI = "https://make-consulta-xvbe6b9ut9es6i6bbemudm.streamlit.app"
+        REDIRECT_URI = "http://localhost:8501/"
 except Exception:
-    # Fallback caso a detecção falhe por versão do Streamlit
-    REDIRECT_URI = "https://make-consulta-xvbe6b9ut9es6i6bbemudm.streamlit.app"
+    # Fallback de segurança para produção
+    REDIRECT_URI = "https://make-consulta-xvbe6b9ut9es6i6bbemudm.streamlit.app/"
 
 # --- CSS MINIMALISTA PREMIUM (COSMOS/LAYERS AESTHETIC) ---
 FUTURISTIC_CSS = """
