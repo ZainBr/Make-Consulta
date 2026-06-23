@@ -529,6 +529,8 @@ if uploaded_files:
         st.markdown("### 🌐 Integração Corporativa Cloud")
         
         parametros_url = st.query_params
+
+        # 1. Processa o código de retorno do Notion (OAuth) se presente na URL
         if "code" in parametros_url and "token_notion_usuario" not in st.session_state:
             codigo_retorno = parametros_url["code"]
             with st.spinner("Validando credenciais corporativas no Notion..."):
@@ -537,11 +539,17 @@ if uploaded_files:
                     st.session_state["token_notion_usuario"] = resposta_oauth["access_token"]
                     if "duplicated_template_id" in resposta_oauth:
                         st.session_state["id_tabela_usuario"] = resposta_oauth["duplicated_template_id"]
+                    
                     st.toast("🔒 Conectado com sucesso ao Notion!", icon="✅")
-                    st.query_params.clear()
+                    
+                    # CORREÇÃO DO LOOP: Remove o parâmetro de forma limpa da URL
+                    if "code" in st.query_params:
+                        del st.query_params["code"]
+                    st.rerun()
                 else:
                     st.error("Falha ao autenticar com o Notion. Entre em contato com o Diego ou tente novamente.")
 
+        # 2. Renderiza a Interface com base no estado da Autenticação
         if "token_notion_usuario" not in st.session_state:
             url_notion_auth = gerar_link_notion()
             st.markdown(f"""
@@ -553,6 +561,7 @@ if uploaded_files:
                 </a>
             """, unsafe_allow_html=True)
             st.caption("Cada colaborador precisa se autenticar uma vez por sessão para enviar os dados para seu respectivo espaço de trabalho.")
+        
         else:
             st.success("✅ Você está conectado no Notion.")
             
@@ -560,18 +569,12 @@ if uploaded_files:
             if "id_notion_automatico" not in st.session_state or not st.session_state["id_notion_automatico"]:
                 with st.spinner("Localizando sua página de destino no Notion..."):
                     token_atual = st.session_state["token_notion_usuario"]
-                    
-                    # Roda a nossa busca inteligente
-                    url_busca = "https://api.notion.com/v1/search"
                     headers_busca = {"Authorization": f"Bearer {token_atual}", "Notion-Version": "2022-06-28"}
                     
-                    # Tenta achar "Notes" primeiro, se não, pega a primeira database disponível
                     id_encontrado = buscar_id_da_pagina_por_nome(token_atual, "Notes")
                     
                     if id_encontrado:
                         st.session_state["id_notion_automatico"] = id_encontrado
-                        
-                        # Puxa o nome real da página para mostrar na tela
                         try:
                             res_nome = requests.get(f"https://api.notion.com/v1/databases/{id_encontrado}", headers=headers_busca)
                             nome_real = res_nome.json().get("title", [{}])[0].get("plain_text", "Minha Lista")
@@ -585,8 +588,7 @@ if uploaded_files:
             nome_pagina_detectada = st.session_state.get("nome_notion_automatico", "Notas")
 
             if id_final_tabela:
-                # Mostra ao usuário o nome exato da página que o app detectou no Notion dele
-                
+                st.info(f"📋 Destino detetado no teu Notion: **{nome_pagina_detectada}**")
                 
                 if st.button("🚀 TRANSMITIR REGISTROS PARA O MEU NOTION"):
                     barra_envio = st.progress(0)
@@ -604,11 +606,12 @@ if uploaded_files:
                     if falhas == 0:
                         st.success(f"✨ Pronto! {sucessos} notas fiscais geradas com sucesso na sua página")
                     else:
-                        st.error(f"🔴 Erro no envio: {falhas} falhas detectadas. Verifique a estrutura das suas notas.")
+                        st.error(f"🔴 Erro no envio: {falhas} falhas detetadas. Verifique a estrutura das suas notas.")
             else:
                 st.error("❌ Nenhuma página ou lista de notas foi encontrada no seu Notion.")
                 st.warning("Certifique-se de que você selecionou e marcou a caixinha de pelo menos uma página ao clicar no botão 'Conectar meu Notion'.")
 
+        # 3. Bloco de Exportação Tradicional (Sempre visível no fundo da Tab3)
         st.markdown("---")
         st.markdown("#### 📥 Exportação Local Tradicional")
         col_export1, col_export2, col_export3 = st.columns(3, gap="medium")
@@ -622,12 +625,3 @@ if uploaded_files:
         col_export1.download_button(label=" TXT", data=texto_txt, file_name='dados_extraidos.txt', mime='text/plain', use_container_width=True)
         col_export2.download_button(label=" CSV", data=csv_data, file_name='dados_extraidos.csv', mime='text/csv', use_container_width=True)
         col_export3.download_button(label=" EXCEL", data=buffer_bytes.getvalue(), file_name='dados_extraidos.xlsx', mime='application/vnd.openxmlformats-officedocument.spreadsheetml.sheet', use_container_width=True)
-else:
-    st.markdown("---")
-    col1, col2, col3 = st.columns([1, 2, 1])
-    with col2:
-        st.info("Como Usar:\n1. Acesse o painel lateral\n2. Selecione seus arquivos PDF\n3. O sistema processa automaticamente\n4. Exporte em TXT, CSV, Excel ou Notion")
-        st.success("Dica: Você pode fazer upload de múltiplos PDFs simultaneamente.")
-
-st.markdown("---")
-st.markdown("<div style='text-align: center; padding: 20px 0;'><p style='font-size: 11px; color: var(--text-secondary);'>Make Distribuidora • ConsultaNF • 2.0</p></div>", unsafe_allow_html=True)
