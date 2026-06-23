@@ -532,8 +532,11 @@ if uploaded_files:
         parametros_url = st.query_params
 
         # 1. Processa o código de retorno do Notion (OAuth) se presente na URL
-        if "code" in parametros_url and "token_notion_usuario" not in st.session_state:
-            codigo_retorno = parametros_url["code"]
+        codigo_retorno = parametros_url.get("code")
+        ja_processando = st.session_state.get("_oauth_processando", False)
+
+        if codigo_retorno and "token_notion_usuario" not in st.session_state and not ja_processando:
+            st.session_state["_oauth_processando"] = True  # Trava para evitar loop
             with st.spinner("Validando credenciais corporativas no Notion..."):
                 resposta_oauth = obter_access_token(codigo_retorno)
                 if resposta_oauth:
@@ -541,13 +544,13 @@ if uploaded_files:
                     if "duplicated_template_id" in resposta_oauth:
                         st.session_state["id_tabela_usuario"] = resposta_oauth["duplicated_template_id"]
                     
+                    # Remove o ?code da URL ANTES do rerun para não reprocessar
+                    st.query_params.clear()
+                    st.session_state["_oauth_processando"] = False
                     st.toast("🔒 Conectado com sucesso ao Notion!", icon="✅")
-                    
-                    # CORREÇÃO DO LOOP: Remove o parâmetro de forma limpa da URL
-                    if "code" in st.query_params:
-                        del st.query_params["code"]
                     st.rerun()
                 else:
+                    st.session_state["_oauth_processando"] = False
                     st.error("Falha ao autenticar com o Notion. Entre em contato com o Diego ou tente novamente.")
 
         # 2. Renderiza a Interface com base no estado da Autenticação
