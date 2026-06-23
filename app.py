@@ -528,33 +528,19 @@ if uploaded_files:
     with tab3:
         st.markdown("### 🌐 Integração Corporativa Cloud")
         
-        # --- SUBISTITUA O TRECHO DO TRATAMENTO DO "code" POR ESTE ---
-
-parametros_url = st.query_params
-
-# Se o código está na URL e ainda não processamos o token nesta execução
-if "code" in parametros_url and "token_notion_usuario" not in st.session_state:
-    codigo_retorno = parametros_url["code"]
-    
-    with st.spinner("Validando credenciais corporativas no Notion..."):
-        resposta_oauth = obter_access_token(codigo_retorno)
-        
-        if resposta_oauth:
-            # Salva o token no estado global da sessão
-            st.session_state["token_notion_usuario"] = resposta_oauth["access_token"]
-            if "duplicated_template_id" in resposta_oauth:
-                st.session_state["id_tabela_usuario"] = resposta_oauth["duplicated_template_id"]
-            
-            st.toast("🔒 Conectado com sucesso ao Notion!", icon="✅")
-            
-            # CORREÇÃO DO LOOP: Remove o parâmetro 'code' de forma limpa sem forçar loops agressivos
-            if "code" in st.query_params:
-                del st.query_params["code"]
-                
-            # Força uma atualização limpa do estado interno
-            st.rerun()
-        else:
-            st.error("Falha ao autenticar com o Notion. Entre em contato com o Diego ou tente novamente.")
+        parametros_url = st.query_params
+        if "code" in parametros_url and "token_notion_usuario" not in st.session_state:
+            codigo_retorno = parametros_url["code"]
+            with st.spinner("Validando credenciais corporativas no Notion..."):
+                resposta_oauth = obter_access_token(codigo_retorno)
+                if resposta_oauth:
+                    st.session_state["token_notion_usuario"] = resposta_oauth["access_token"]
+                    if "duplicated_template_id" in resposta_oauth:
+                        st.session_state["id_tabela_usuario"] = resposta_oauth["duplicated_template_id"]
+                    st.toast("🔒 Conectado com sucesso ao Notion!", icon="✅")
+                    st.query_params.clear()
+                else:
+                    st.error("Falha ao autenticar com o Notion. Entre em contato com o Diego ou tente novamente.")
 
         if "token_notion_usuario" not in st.session_state:
             url_notion_auth = gerar_link_notion()
