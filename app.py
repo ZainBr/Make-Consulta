@@ -15,18 +15,19 @@ st.set_page_config(
 # --- CREDENCIAIS DA SUA INTEGRAÇÃO PÚBLICA (NOTION OAUTH) ---
 CLIENT_ID = st.secrets["CLIENT_ID"]
 CLIENT_SECRET = st.secrets["CLIENT_SECRET"]
-
 # DETECÇÃO AUTOMÁTICA DE AMBIENTE:
 try:
+    # Captura o host que está acessando o app no momento
     headers = st.context.headers
     host = headers.get("Host", "")
     
     if "localhost" in host or "127.0.0.1" in host:
         REDIRECT_URI = "http://localhost:8501/"
     else:
-        REDIRECT_URI = "https://consulta-nf-qogzog7stewimttnbwfbnv.streamlit.app/"
+        REDIRECT_URI = "https://make-consulta-xvbe6b9ut9es6i6bbemudm.streamlit.app/"
 except Exception:
-    REDIRECT_URI = "https://consulta-nf-qogzog7stewimttnbwfbnv.streamlit.app/"
+    # Fallback caso a detecção falhe por versão do Streamlit
+    REDIRECT_URI = "https://make-consulta-xvbe6b9ut9es6i6bbemudm.streamlit.app/"
 
 # --- CSS MINIMALISTA PREMIUM (COSMOS/LAYERS AESTHETIC) ---
 FUTURISTIC_CSS = """
