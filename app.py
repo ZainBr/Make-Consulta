@@ -16,20 +16,10 @@ st.set_page_config(
 CLIENT_ID = st.secrets["CLIENT_ID"]
 CLIENT_SECRET = st.secrets["CLIENT_SECRET"]
 
-# --- DETECÇÃO AUTOMÁTICA DE AMBIENTE CORRIGIDA PARA STREAMLIT CLOUD ---
-try:
-    headers = st.context.headers
-    # Na nuvem do Streamlit, o domínio público real fica no 'X-Forwarded-Host'
-    # O 'Host' padrão vem mascarado internamente como 'localhost'
-    host_publico = headers.get("X-Forwarded-Host", headers.get("Host", ""))
-    
-    if "streamlit.app" in host_publico:
-        REDIRECT_URI = "https://make-consulta-xvbe6b9ut9es6i6bbemudm.streamlit.app/"
-    else:
-        REDIRECT_URI = "http://localhost:8501/"
-except Exception:
-    # Fallback de segurança para produção
-    REDIRECT_URI = "https://make-consulta-xvbe6b9ut9es6i6bbemudm.streamlit.app/"
+# --- REDIRECT URI FIXO (evita inconsistência de barra e detecção de host) ---
+# IMPORTANTE: Este valor deve ser IDÊNTICO ao cadastrado no painel do Notion OAuth.
+# Sem barra no final para evitar mismatch.
+REDIRECT_URI = "https://make-consulta-xvbe6b9ut9es6i6bbemudm.streamlit.app"
 
 # --- CSS MINIMALISTA PREMIUM (COSMOS/LAYERS AESTHETIC) ---
 FUTURISTIC_CSS = """
@@ -533,25 +523,21 @@ if uploaded_files:
 
         # 1. Processa o código de retorno do Notion (OAuth) se presente na URL
         codigo_retorno = parametros_url.get("code")
-        ja_processando = st.session_state.get("_oauth_processando", False)
 
-        if codigo_retorno and "token_notion_usuario" not in st.session_state and not ja_processando:
-            st.session_state["_oauth_processando"] = True  # Trava para evitar loop
+        if codigo_retorno and "token_notion_usuario" not in st.session_state:
+            # Limpa IMEDIATAMENTE o ?code da URL antes de qualquer coisa
+            st.query_params.clear()
             with st.spinner("Validando credenciais corporativas no Notion..."):
                 resposta_oauth = obter_access_token(codigo_retorno)
                 if resposta_oauth:
                     st.session_state["token_notion_usuario"] = resposta_oauth["access_token"]
                     if "duplicated_template_id" in resposta_oauth:
                         st.session_state["id_tabela_usuario"] = resposta_oauth["duplicated_template_id"]
-                    
-                    # Remove o ?code da URL ANTES do rerun para não reprocessar
-                    st.query_params.clear()
-                    st.session_state["_oauth_processando"] = False
-                    st.toast("🔒 Conectado com sucesso ao Notion!", icon="✅")
-                    st.rerun()
+                    st.success("🔒 Conectado com sucesso ao Notion!")
+                    # SEM st.rerun() — o Streamlit continua naturalmente para o bloco de autenticado abaixo
                 else:
-                    st.session_state["_oauth_processando"] = False
                     st.error("Falha ao autenticar com o Notion. Entre em contato com o Diego ou tente novamente.")
+                    st.stop()
 
         # 2. Renderiza a Interface com base no estado da Autenticação
         if "token_notion_usuario" not in st.session_state:
