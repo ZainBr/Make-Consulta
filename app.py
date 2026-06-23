@@ -16,9 +16,9 @@ st.set_page_config(
 CLIENT_ID = st.secrets["CLIENT_ID"]
 CLIENT_SECRET = st.secrets["CLIENT_SECRET"]
 
-# --- REDIRECT URI FIXO (evita inconsistência de barra e detecção de host) ---
-# IMPORTANTE: Este valor deve ser IDÊNTICO ao cadastrado no painel do Notion OAuth.
-# Sem barra no final para evitar mismatch.
+# --- REDIRECT URI --- 
+# Deve ser IDÊNTICO ao cadastrado no painel do Notion (sem barra no final).
+# Para rodar local: troque para "http://localhost:8501" e cadastre no Notion também.
 REDIRECT_URI = "https://make-consulta-xvbe6b9ut9es6i6bbemudm.streamlit.app"
 
 # --- CSS MINIMALISTA PREMIUM (COSMOS/LAYERS AESTHETIC) ---
@@ -523,9 +523,8 @@ if uploaded_files:
 
         # 1. Processa o código de retorno do Notion (OAuth) se presente na URL
         codigo_retorno = parametros_url.get("code")
-
         if codigo_retorno and "token_notion_usuario" not in st.session_state:
-            # Limpa IMEDIATAMENTE o ?code da URL antes de qualquer coisa
+            # Salva o code e limpa a URL ANTES de qualquer chamada — evita o loop de redirect
             st.query_params.clear()
             with st.spinner("Validando credenciais corporativas no Notion..."):
                 resposta_oauth = obter_access_token(codigo_retorno)
@@ -534,7 +533,7 @@ if uploaded_files:
                     if "duplicated_template_id" in resposta_oauth:
                         st.session_state["id_tabela_usuario"] = resposta_oauth["duplicated_template_id"]
                     st.success("🔒 Conectado com sucesso ao Notion!")
-                    # SEM st.rerun() — o Streamlit continua naturalmente para o bloco de autenticado abaixo
+                    # SEM st.rerun() — o Streamlit continua renderizando o bloco autenticado abaixo naturalmente
                 else:
                     st.error("Falha ao autenticar com o Notion. Entre em contato com o Diego ou tente novamente.")
                     st.stop()
