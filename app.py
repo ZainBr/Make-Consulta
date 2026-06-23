@@ -15,6 +15,7 @@ st.set_page_config(
 # --- CREDENCIAIS DA SUA INTEGRAÇÃO PÚBLICA (NOTION OAUTH) ---
 CLIENT_ID = st.secrets["CLIENT_ID"]
 CLIENT_SECRET = st.secrets["CLIENT_SECRET"]
+
 # DETECÇÃO AUTOMÁTICA DE AMBIENTE:
 try:
     # Captura o host que está acessando o app no momento
@@ -279,6 +280,7 @@ def enviar_linha_para_notion(token, database_id, dados):
     except requests.RequestException as e:
         st.error(f"🔴 Falha crítica de rede: {e}")
         return False
+
 def buscar_id_da_pagina_por_nome(token, nome_padrao="Notes"):
     url = "https://api.notion.com/v1/search"
     headers = {
@@ -315,6 +317,7 @@ def buscar_id_da_pagina_por_nome(token, nome_padrao="Notes"):
         return None
     except Exception:
         return None
+
 # --- HEADER MINIMALISTA ---
 col1, col2, col3 = st.columns([1, 2, 1])
 with col2:
@@ -407,24 +410,21 @@ def extrair_codigo_parceiro(texto, linhas_pdf):
     texto_normalizado = re.sub(r'\s+', ' ', texto)
 
     # --- ESTRATÉGIA 1: Canhoto Superior (A mais segura para este layout específico) ---
-    # Procura pela frase fixa do canhoto que contém o código puro: "INDICADA AD LADO XXXXXX"
     match_canhoto = re.search(r'INDICADA\s+A[DQ]\s+LADO\s+(\d{3,8})', texto_normalizado, re.IGNORECASE)
     if match_canhoto:
         return match_canhoto.group(1)
 
-    # --- ESTRATÉGIA 2: Sua lógica original baseada na Janela do Nome/Razão Social ---
+    # --- ESTRATÉGIA 2: Baseado na Janela do Nome/Razão Social ---
     for indice, linha in enumerate(linhas_pdf):
         if re.search(r'NOME/RAZ[ÃA]O SOCIAL', linha, re.IGNORECASE):
             janela = ' '.join(linhas_pdf[indice:indice + 6])
             match = re.search(r'NOME/RAZ[ÃA]O SOCIAL\s+(.+?)\s+(\d{3,8})\b', janela, re.IGNORECASE)
             if match:
-                # Evita capturar fragmentos comuns de início de CNPJ como "25.065.929"
                 codigo_candidato = match.group(2)
                 if "." not in codigo_candidato and "-" not in codigo_candidato:
                     return codigo_candidato
 
     # --- ESTRATÉGIA 3: Fallback por proximidade antes do CNPJ/CPF Destinatário ---
-    # Captura o número limpo de 3 a 8 dígitos que antecede a máscara do CNPJ/CPF
     match_antes_cnpj = re.search(r'\b(\d{3,8})\s+\d{2}\.\d{3}\.\d{3}/\d{4}-\d{2}', texto_normalizado)
     if match_antes_cnpj:
         return match_antes_cnpj.group(1)
@@ -434,11 +434,10 @@ def extrair_codigo_parceiro(texto, linhas_pdf):
         return match_antes_cpf.group(1)
 
     # --- ESTRATÉGIA 4: Bloqueio de segurança contra Inscrição Estadual ---
-    # Se ainda tentar buscar por "NOME/RAZÃO SOCIAL" genérico, garantimos que não pegue a IE (12228198)
     match_generico = re.search(r'NOME/RAZ[ÃA]O SOCIAL.*?\b(\d{3,8})\b', texto_normalizado, re.IGNORECASE)
     if match_generico:
         codigo_candidato = match_generico.group(1)
-        if codigo_candidato != "12228198": # Ignora a IE da distribuidora
+        if codigo_candidato != "12228198": 
             return codigo_candidato
 
     return "N/A"
@@ -455,7 +454,7 @@ def extrair_dados_nf(pdf_bytes, nome_arquivo):
                 linhas.extend([l.strip() for l in pagina_texto.splitlines() if l.strip()])
 
             dados = {
-                "NF": extrair_nf(texto_completo, linhas),
+                "NF": extrair_nf(texto_completo, lines),
                 "Data de emissão": "N/A",
                 "Código do produto": "N/A",
                 "Código do parceiro": "N/A"
@@ -539,7 +538,7 @@ if uploaded_files:
                     st.toast("🔒 Conectado com sucesso ao Notion!", icon="✅")
                     st.query_params.clear()
                 else:
-                    st.error("Falha ao autenticar com o Notion. Entre em contato com o Diego ou tente novamente.")
+                    st.error("Falha ao autenticar com o Notion. Entre em contato com o administrador ou tente novamente.")
 
         if "token_notion_usuario" not in st.session_state:
             url_notion_auth = gerar_link_notion()
@@ -560,17 +559,14 @@ if uploaded_files:
                 with st.spinner("Localizando sua página de destino no Notion..."):
                     token_atual = st.session_state["token_notion_usuario"]
                     
-                    # Roda a nossa busca inteligente
                     url_busca = "https://api.notion.com/v1/search"
                     headers_busca = {"Authorization": f"Bearer {token_atual}", "Notion-Version": "2022-06-28"}
                     
-                    # Tenta achar "Notes" primeiro, se não, pega a primeira database disponível
                     id_encontrado = buscar_id_da_pagina_por_nome(token_atual, "Notes")
                     
                     if id_encontrado:
                         st.session_state["id_notion_automatico"] = id_encontrado
                         
-                        # Puxa o nome real da página para mostrar na tela
                         try:
                             res_nome = requests.get(f"https://api.notion.com/v1/databases/{id_encontrado}", headers=headers_busca)
                             nome_real = res_nome.json().get("title", [{}])[0].get("plain_text", "Minha Lista")
@@ -584,9 +580,6 @@ if uploaded_files:
             nome_pagina_detectada = st.session_state.get("nome_notion_automatico", "Notas")
 
             if id_final_tabela:
-                # Mostra ao usuário o nome exato da página que o app detectou no Notion dele
-                
-                
                 if st.button("🚀 TRANSMITIR REGISTROS PARA O MEU NOTION"):
                     barra_envio = st.progress(0)
                     sucessos, falhas = 0, 0
