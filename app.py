@@ -23,12 +23,12 @@ try:
     host = headers.get("Host", "")
     
     if "localhost" in host or "127.0.0.1" in host:
-        REDIRECT_URI = "http://localhost:8501/"
+        REDIRECT_URI = "https://make-consulta-xvbe6b9ut9es6i6bbemudm.streamlit.app"
     else:
-        REDIRECT_URI = "https://make-consulta-xvbe6b9ut9es6i6bbemudm.streamlit.app/"
+        REDIRECT_URI = "https://make-consulta-xvbe6b9ut9es6i6bbemudm.streamlit.app"
 except Exception:
     # Fallback caso a detecção falhe por versão do Streamlit
-    REDIRECT_URI = "https://make-consulta-xvbe6b9ut9es6i6bbemudm.streamlit.app/"
+    REDIRECT_URI = "https://make-consulta-xvbe6b9ut9es6i6bbemudm.streamlit.app"
 
 # --- CSS MINIMALISTA PREMIUM (COSMOS/LAYERS AESTHETIC) ---
 FUTURISTIC_CSS = """
