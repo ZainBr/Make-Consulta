@@ -542,12 +542,7 @@ if uploaded_files:
 
         if "token_notion_usuario" not in st.session_state:
             url_notion_auth = gerar_link_notion()
-            st.markdown(f"""
-                <a href="{url_notion_auth}" target="_self">
-                    <button style="
-                        background-color: #141416; color: #3ecf9e; padding: 12px 24px;
-                        border: 1px solid #3ecf9e; border-radius: 4px; cursor: pointer; font-weight: bold;
-                    ">🔑 CONECTAR MEU NOTION</button>
+st.link_button("🔑 CONECTAR MEU NOTION", url_notion_auth)
                 </a>
             """, unsafe_allow_html=True)
             st.caption("Cada colaborador precisa se autenticar uma vez por sessão para enviar os dados para seu respectivo espaço de trabalho.")
