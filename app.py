@@ -542,9 +542,7 @@ if uploaded_files:
 
         if "token_notion_usuario" not in st.session_state:
             url_notion_auth = gerar_link_notion()
-st.link_button("🔑 CONECTAR MEU NOTION", url_notion_auth)
-                </a>
-            """, unsafe_allow_html=True)
+            st.link_button("🔑 CONECTAR MEU NOTION", url_notion_auth)
             st.caption("Cada colaborador precisa se autenticar uma vez por sessão para enviar os dados para seu respectivo espaço de trabalho.")
         else:
             st.success("✅ Você está conectado no Notion.")
