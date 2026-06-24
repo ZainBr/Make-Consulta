@@ -251,12 +251,9 @@ def enviar_linha_para_notion(token, database_id, dados):
             break
 
     conteudo_completo = (
-        f"NF: {numero_nf}
-"
-        f"Emissão: {data_emissao}
-"
-        f"Parceiro: {cod_parceiro}
-"
+        f"NF: {numero_nf}\n"
+        f"Emissão: {data_emissao}\n"
+        f"Parceiro: {cod_parceiro}\n"
         f"Produtos: {cod_produto}"
     )
 
