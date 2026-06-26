@@ -28,142 +28,110 @@ try:
 except Exception:
     REDIRECT_URI = "https://make-consulta-xvbe6b9ut9es6i6bbemudm.streamlit.app/"
 
-# --- CSS MINIMALISTA PREMIUM (COSMOS/LAYERS AESTHETIC) ---
+# --- CSS PREMIUM INSPIRADO NA MAKE DISTRIBUIDORA ---
 FUTURISTIC_CSS = """
 <style>
+    /* --- VARIÁVEIS DE COR CORPORATIVAS (MUDANÇA DINÂMICA) --- */
     :root {
-        --bg-app: #09090b;
-        --bg-sidebar: #09090b;
-        --bg-card: #141416;
-        --border-line: #222226;
-        --accent: #3ecf9e;
-        --accent-soft: rgba(62, 207, 158, 0.15);
-        --text-white: #f4f4f5;
-        --text-secondary: #a3a3a8;
+        --bg-app: #04140e; /* Verde escuro idêntico à imagem de referência */
+        --bg-card: #082218; 
+        --border-line: #123a2b;
+        --accent: #00a854; /* Verde vibrante do botão "Entrar" */
+        --accent-hover: #00c261;
+        --text-white: #ffffff;
+        --text-secondary: #a3b8b0;
+        
+        /* Alertas baseados no erro da imagem */
+        --bg-error: rgba(139, 9, 9, 0.25);
+        --border-error: #8b0909;
+        --text-error: #ff7676;
+    }
+
+    /* Suporte automático a Tema Claro do Sistema */
+    @media (prefers-color-scheme: light) {
+        :root {
+            --bg-app: #f4f7f5;
+            --bg-card: #ffffff;
+            --border-line: #d1e0db;
+            --accent: #00a854;
+            --accent-hover: #008f47;
+            --text-white: #0f1f18;
+            --text-secondary: #50695f;
+            --bg-error: #fdf2f2;
+            --border-error: #f8b4b4;
+            --text-error: #9b1c1c;
+        }
     }
     
-    @keyframes fadeInSlide {
-        from { opacity: 0; transform: translateY(8px); }
-        to { opacity: 1; transform: translateY(0); }
-    }
-    
-    @keyframes auroraAmbient {
-        0% { background-position: 0% 50%; background-size: 200% 200%; }
-        50% { background-position: 100% 50%; background-size: 200% 200%; }
-        100% { background-position: 0% 50%; background-size: 200% 200%; }
-    }
-    
-    @keyframes shimmerSwipe {
-        0% { background-position: -1200px 0; }
-        100% { background-position: 1200px 0; }
-    }
-    
-    @keyframes shimmerText {
-        0% { background-position: -2000px 0; }
-        100% { background-position: 2000px 0; }
-    }
-    
-    @keyframes breathingPulse {
-        0%, 100% { box-shadow: inset 0 0 0 1px rgba(62, 207, 158, 0.2), 0 0 8px rgba(62, 207, 158, 0.08); }
-        50% { box-shadow: inset 0 0 0 1px rgba(62, 207, 158, 0.4), 0 0 16px rgba(62, 207, 158, 0.16); }
-    }
-    
-    @keyframes elasticPulse {
-        0%, 100% { transform: scale(1); box-shadow: 0 0 0 0 rgba(62, 207, 158, 0.08), inset 0 0 0 1px rgba(62, 207, 158, 0.15); }
-        50% { transform: scale(1.03); box-shadow: 0 0 24px 4px rgba(62, 207, 158, 0.12), inset 0 0 0 2px rgba(62, 207, 158, 0.25); }
-    }
-    
-    @keyframes rippleWave {
-        0% { background-color: var(--bg-card); box-shadow: inset 0 0 0 0 rgba(62, 207, 158, 0); }
-        50% { box-shadow: inset 0 0 0 4px rgba(62, 207, 158, 0.06); }
-        100% { background-color: #1c1c1f; box-shadow: inset 0 0 0 0 rgba(62, 207, 158, 0); }
-    }
-    
+    /* --- ESTRUTURA GLOBAL --- */
     body, .stApp, [data-testid="stAppViewContainer"] {
         background: var(--bg-app) !important;
-        background-image: 
-            radial-gradient(circle at 20% 50%, rgba(62, 207, 158, 0.05) 0%, transparent 50%),
-            radial-gradient(circle at 80% 80%, rgba(62, 207, 158, 0.03) 0%, transparent 60%) !important;
-        animation: auroraAmbient 16s ease-in-out infinite !important;
+        color: var(--text-white) !important;
+        font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+    }
+    
+    h1, h2, h3, h4, h5, h6, p, span, label {
         color: var(--text-white) !important;
     }
     
-    * { color: var(--text-white); }
-    
-    h1, h2, h3, h4, h5, h6 {
-        color: var(--text-white) !important;
-        font-weight: 500;
-        letter-spacing: 0.05em;
-        animation: fadeInSlide 0.7s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+    /* --- RESPONSIVIDADE MOBILE --- */
+    @media (max-width: 768px) {
+        .stColumns {
+            flex-direction: column !important;
+            gap: 12px !important;
+        }
+        .stButton > button, [data-testid="stDownloadButton"] > button {
+            width: 100% !important;
+        }
+        .notion-card {
+            padding: 16px !important;
+        }
     }
     
-    [data-testid="stSidebar"] {
-        background: rgba(9, 9, 11, 0.75) !important;
-        backdrop-filter: blur(16px);
-        border-right: 1px solid var(--border-line);
-        -webkit-backdrop-filter: blur(16px);
+    /* --- CARDS PERSONALIZADOS (ESTILO DA MARCA) --- */
+    .notion-card {
+        background: var(--bg-card);
+        border: 1px solid var(--border-line);
+        border-radius: 10px;
+        padding: 24px;
+        margin: 16px 0;
+        box-shadow: 0 4px 12px rgba(0,0,0,0.15);
     }
     
-    .stButton > button {
-        background: transparent !important;
+    /* --- BOTÕES NO ESTILO "ENTRAR" DA MAKE --- */
+    .stButton > button, [data-testid="stDownloadButton"] > button {
+        background-color: var(--accent) !important;
+        color: #ffffff !important;
+        border: none !important;
+        border-radius: 8px !important;
+        padding: 12px 24px !important;
+        font-weight: 600 !important;
+        transition: all 0.2s ease !important;
+        box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    }
+    
+    .stButton > button:hover, [data-testid="stDownloadButton"] > button:hover {
+        background-color: var(--accent-hover) !important;
+        transform: translateY(-1px);
+        box-shadow: 0 4px 8px rgba(0,168,84,0.3);
+    }
+    
+    /* --- NOTIFICAÇÕES E ALERTAS ESTILIZADOS --- */
+    div[data-testid="stNotification"] {
+        background-color: var(--bg-card) !important;
         border: 1px solid var(--border-line) !important;
-        color: var(--text-secondary) !important;
-        border-radius: 4px;
-        padding: 10px 24px;
-        font-weight: 500;
-        transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        border-radius: 8px !important;
     }
     
-    .stButton > button:hover {
-        background: var(--accent-soft) !important;
-        border-color: var(--accent) !important;
-        color: var(--text-white) !important;
-        transform: scale(1.02) translateY(-2px);
-        box-shadow: 0 8px 24px rgba(62, 207, 158, 0.16);
-    }
-    
-    [data-testid="stDownloadButton"] > button {
-        background: transparent !important;
-        border: 1px solid var(--border-line) !important;
-        color: var(--text-secondary) !important;
-        border-radius: 4px;
-        transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-    }
-    
-    [data-testid="stDownloadButton"] > button:hover {
-        background: var(--accent-soft) !important;
-        border-color: var(--accent) !important;
-        color: var(--text-white) !important;
-        transform: scale(1.02) translateY(-2px);
-    }
-    
-    .stTextInput > div > div > input {
-        background: var(--bg-card) !important;
-        border: 1px solid var(--border-line) !important;
-        color: var(--text-white) !important;
-        border-radius: 4px;
-    }
-    
-    .stTextInput > div > div > input:focus {
-        border-color: var(--accent) !important;
-    }
-    
-    .stTable tbody tr:hover {
-        animation: rippleWave 0.5s cubic-bezier(0.4, 0, 0.2, 1) forwards;
-    }
-    
-    .stProgress > div > div > div > div {
-        background: linear-gradient(90deg, var(--accent) 0%, rgba(62, 207, 158, 0.5) 50%, var(--accent) 100%) !important;
-        background-size: 1000px 100%;
-        animation: shimmerSwipe 2s infinite !important;
-        height: 2px !important;
-    }
-    
-    .stFileUploader > div {
-        background: var(--bg-card) !important;
-        border: 2px dashed var(--border-line) !important;
+    /* Estilo customizado para mensagens de erro/aviso idênticas à imagem */
+    .error-box {
+        background-color: var(--bg-error);
+        border: 1px solid var(--border-error);
+        color: var(--text-error) !important;
+        padding: 14px;
         border-radius: 8px;
-        animation: elasticPulse 3s ease-in-out infinite;
+        font-size: 14px;
+        margin: 10px 0;
     }
 </style>
 """
@@ -541,34 +509,41 @@ if uploaded_files:
         parametros_url = st.query_params
         if "code" in parametros_url and "token_notion_usuario" not in st.session_state:
             codigo_retorno = parametros_url["code"]
-            with st.spinner("Validando credenciais corporativas no Notion..."):
+            with st.spinner("Conectando ao ambiente de trabalho..."):
                 resposta_oauth = obter_access_token(codigo_retorno)
                 if resposta_oauth:
                     st.session_state["token_notion_usuario"] = resposta_oauth["access_token"]
                     if "duplicated_template_id" in resposta_oauth:
                         st.session_state["id_tabela_usuario"] = resposta_oauth["duplicated_template_id"]
-                    st.toast("🔒 Conectado com sucesso ao Notion!", icon="✅")
+                    st.toast("Conectado com sucesso à Make Distribuidora no Notion!", icon="✅")
                     st.query_params.clear()
                 else:
-                    st.error("Falha ao autenticar com o Notion. Entre em contato com o Diego ou tente novamente.")
+                    st.markdown('<div class="error-box">Falha ao autenticar com o Notion. Por favor, tente novamente.</div>', unsafe_allow_html=True)
 
+        # --- CONTAINER SE DESCONECTADO ---
         if "token_notion_usuario" not in st.session_state:
-            url_notion_auth = gerar_link_notion()
-            st.link_button("🔑 CONECTAR MEU NOTION", url_notion_auth)
-            st.caption("Cada colaborador precisa se autenticar uma vez por sessão para enviar os dados para seu respectivo espaço de trabalho.")
-        else:
-            st.success("✅ Você está conectado no Notion.")
+            st.markdown("""
+                <div class="notion-card">
+                    <h4 style="margin: 0 0 8px 0; font-weight: 600;">Sincronização com o Notion</h4>
+                    <p style="margin: 0; font-size: 14px; color: var(--text-secondary); line-height: 1.5;">
+                        Vincule seu painel corporativo para exportar os dados das Notas Fiscais extraídas de forma direta para a base do seu setor.
+                    </p>
+                </div>
+            """, unsafe_allow_html=True)
             
-            # Busca automática do ID e do Nome da página em segundo plano
+            url_notion_auth = gerar_link_notion()
+            st.link_button("🔑 CONECTAR MEU NOTION", url_notion_auth, use_container_width=True)
+            
+        # --- CONTAINER SE CONECTADO ---
+        else:
             if "id_notion_automatico" not in st.session_state:
-                with st.spinner("Localizando suas páginas no Notion..."):
+                with st.spinner("Mapeando tabelas integradas..."):
                     token_atual = st.session_state["token_notion_usuario"]
                     id_encontrado, nome_encontrado, todos_resultados = buscar_id_da_pagina_por_nome(token_atual, "Notes")
 
                     if id_encontrado:
                         st.session_state["id_notion_automatico"] = id_encontrado
                         st.session_state["nome_notion_automatico"] = nome_encontrado or "Página Conectada"
-                        # Salva lista de opções disponíveis: [(nome, id), ...]
                         opcoes = [(r.get("title", [{}])[0].get("plain_text", "Sem nome") if r.get("title") else "Sem nome", r.get("id")) for r in todos_resultados]
                         st.session_state["opcoes_notion"] = opcoes
                     else:
@@ -579,35 +554,39 @@ if uploaded_files:
             nome_pagina_detectada = st.session_state.get("nome_notion_automatico", "Notas")
             opcoes_disponiveis = st.session_state.get("opcoes_notion", [])
 
+            st.markdown(f"""
+                <div class="notion-card" style="border-left: 4px solid var(--accent);">
+                    <p style="margin: 0; font-size: 14px; font-weight: 500;">Sessão ativa com o Notion corporativo.</p>
+                </div>
+            """, unsafe_allow_html=True)
+
             if id_final_tabela:
-                # Mostra o nome da página detectada e opção de trocar se houver mais de uma
-                st.info(f"📄 Página detectada: **{nome_pagina_detectada}**")
                 if len(opcoes_disponiveis) > 1:
                     nomes_opcoes = [f"{nome}" for nome, _ in opcoes_disponiveis]
-                    escolha = st.selectbox("Escolher outra página (opcional):", nomes_opcoes, index=0)
+                    escolha = st.selectbox("Selecione a página de destino:", nomes_opcoes, index=0)
                     idx_escolhido = nomes_opcoes.index(escolha)
                     id_final_tabela = opcoes_disponiveis[idx_escolhido][1]
+                else:
+                    st.info(f"Página conectada atual: **{nome_pagina_detectada}**")
 
-                if st.button("🚀 TRANSMITIR REGISTROS PARA O MEU NOTION"):
+                if st.button("🚀 TRANSMITIR REGISTROS PARA O MEU NOTION", use_container_width=True):
                     barra_envio = st.progress(0)
                     sucessos, falhas = 0, 0
                     total_envio = len(df)
                     
-                    with st.spinner("Enviando linhas..."):
-                        for i, (_, row_envio) in enumerate(df.iterrows()):
-                            if enviar_linha_para_notion(st.session_state["token_notion_usuario"], id_final_tabela, row_envio.to_dict()):
-                                sucessos += 1
-                            else:
-                                falhas += 1
-                            barra_envio.progress((i + 1) / total_envio)
+                    for i, (_, row_envio) in enumerate(df.iterrows()):
+                        if enviar_linha_para_notion(st.session_state["token_notion_usuario"], id_final_tabela, row_envio.to_dict()):
+                            sucessos += 1
+                        else:
+                            falhas += 1
+                        barra_envio.progress((i + 1) / total_envio)
                     
                     if falhas == 0:
-                        st.success(f"✨ Pronto! {sucessos} notas fiscais geradas com sucesso na sua página")
+                        st.toast(f"Sucesso! {sucessos} notas fiscais integradas.", icon="✨")
                     else:
-                        st.error(f"🔴 Erro no envio: {falhas} falhas detectadas. Verifique a estrutura das suas notas.")
+                        st.markdown(f'<div class="error-box">Erro no envio: {falhas} falhas detectadas. Verifique a estrutura das notas compartilhadas.</div>', unsafe_allow_html=True)
             else:
-                st.error("❌ Nenhuma página ou lista de notas foi encontrada no seu Notion.")
-                st.warning("Certifique-se de que você selecionou e marcou a caixinha de pelo menos uma página ao clicar no botão 'Conectar meu Notion'.")
+                st.markdown('<div class="error-box">Nenhuma lista compatível foi encontrada no espaço Notion selecionado. Certifique-se de marcar a página ao autorizar.</div>', unsafe_allow_html=True)
 
         st.markdown("---")
         st.markdown("#### 📥 Exportação Local Tradicional")
@@ -619,9 +598,9 @@ if uploaded_files:
         with pd.ExcelWriter(buffer_bytes, engine='xlsxwriter') as writer:
             df.to_excel(writer, index=False, sheet_name='NFs')
         
-        col_export1.download_button(label=" TXT", data=texto_txt, file_name='dados_extraidos.txt', mime='text/plain', use_container_width=True)
-        col_export2.download_button(label=" CSV", data=csv_data, file_name='dados_extraidos.csv', mime='text/csv', use_container_width=True)
-        col_export3.download_button(label=" EXCEL", data=buffer_bytes.getvalue(), file_name='dados_extraidos.xlsx', mime='application/vnd.openxmlformats-officedocument.spreadsheetml.sheet', use_container_width=True)
+        col_export1.download_button(label="TXT", data=texto_txt, file_name='dados_extraidos.txt', mime='text/plain', use_container_width=True)
+        col_export2.download_button(label="CSV", data=csv_data, file_name='dados_extraidos.csv', mime='text/csv', use_container_width=True)
+        col_export3.download_button(label="EXCEL", data=buffer_bytes.getvalue(), file_name='dados_extraidos.xlsx', mime='application/vnd.openxmlformats-officedocument.spreadsheetml.sheet', use_container_width=True)
 else:
     st.markdown("---")
     col1, col2, col3 = st.columns([1, 2, 1])
