@@ -28,77 +28,71 @@ try:
 except Exception:
     REDIRECT_URI = "https://make-consulta-xvbe6b9ut9es6i6bbemudm.streamlit.app/"
 
-# --- CSS PREMIUM INSPIRADO NA MAKE DISTRIBUIDORA ---
+# --- CSS PREMIUM UNIFICADO (RESOLUÇÃO DE CONFLITO DE CORES) ---
 FUTURISTIC_CSS = """
 <style>
-    /* --- VARIÁVEIS DE COR CORPORATIVAS (MUDANÇA DINÂMICA) --- */
+    /* --- CORES CORPORATIVAS FIXAS (EVITA TELA DIVIDIDA) --- */
     :root {
-        --bg-app: #04140e; /* Verde escuro idêntico à imagem de referência */
-        --bg-card: #082218; 
-        --border-line: #123a2b;
-        --accent: #00a854; /* Verde vibrante do botão "Entrar" */
-        --accent-hover: #00c261;
-        --text-white: #ffffff;
-        --text-secondary: #a3b8b0;
-        
-        /* Alertas baseados no erro da imagem */
-        --bg-error: rgba(139, 9, 9, 0.25);
-        --border-error: #8b0909;
-        --text-error: #ff7676;
+        --bg-app: #04140e !important;       /* Verde escuro profundo principal */
+        --bg-sidebar: #020b08 !important;   /* Verde ainda mais escuro para a barra lateral */
+        --bg-card: #082218 !important;      /* Cards e elementos internos */
+        --border-line: #123a2b !important;  /* Divisórias suaves */
+        --accent: #00a854 !important;       /* Verde oficial do botão principal */
+        --accent-hover: #00c261 !important;
+        --text-white: #ffffff !important;   /* Todos os textos em branco */
+        --text-secondary: #a3b8b0 !important;
     }
 
-    /* Suporte automático a Tema Claro do Sistema */
-    @media (prefers-color-scheme: light) {
-        :root {
-            --bg-app: #f4f7f5;
-            --bg-card: #ffffff;
-            --border-line: #d1e0db;
-            --accent: #00a854;
-            --accent-hover: #008f47;
-            --text-white: #0f1f18;
-            --text-secondary: #50695f;
-            --bg-error: #fdf2f2;
-            --border-error: #f8b4b4;
-            --text-error: #9b1c1c;
-        }
-    }
-    
-    /* --- ESTRUTURA GLOBAL --- */
-    body, .stApp, [data-testid="stAppViewContainer"] {
-        background: var(--bg-app) !important;
-        color: var(--text-white) !important;
-        font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
-    }
-    
-    h1, h2, h3, h4, h5, h6, p, span, label {
+    /* --- FORÇAR FUNCS GERAIS DO STREAMLIT --- */
+    body, .stApp, [data-testid="stAppViewContainer"], [data-testid="stHeader"] {
+        background-color: var(--bg-app) !important;
+        background-image: none !important;
         color: var(--text-white) !important;
     }
-    
-    /* --- RESPONSIVIDADE MOBILE --- */
-    @media (max-width: 768px) {
-        .stColumns {
-            flex-direction: column !important;
-            gap: 12px !important;
-        }
-        .stButton > button, [data-testid="stDownloadButton"] > button {
-            width: 100% !important;
-        }
-        .notion-card {
-            padding: 16px !important;
-        }
+
+    /* Remove o topo branco e força a cor escura */
+    [data-testid="stHeader"] {
+        background-color: var(--bg-app) !important;
+    }
+
+    /* --- UNIFICAÇÃO DA SIDEBAR (FIM DA SIDEBAR CLARA) --- */
+    [data-testid="stSidebar"], [data-testid="stSidebar"] section {
+        background-color: var(--bg-sidebar) !important;
+        border-right: 1px solid var(--border-line) !important;
     }
     
-    /* --- CARDS PERSONALIZADOS (ESTILO DA MARCA) --- */
+    /* Força os textos da sidebar para branco */
+    [data-testid="stSidebar"] *, [data-testid="stSidebar"] label, [data-testid="stSidebar"] p {
+        color: var(--text-white) !important;
+    }
+
+    /* --- SUBSTITUIÇÃO DO AZUL NATIVO DA BARRA DE PROGRESSO --- */
+    .stProgress > div > div > div > div {
+        background-color: var(--accent) !important;
+    }
+
+    /* --- ALINHAMENTO DAS ABAS (TABS) --- */
+    button[data-baseweb="tab"] {
+        color: var(--text-secondary) !important;
+        background-color: transparent !important;
+        border: none !important;
+    }
+    
+    button[data-baseweb="tab"][aria-selected="true"] {
+        color: var(--accent) !important;
+        border-bottom: 2px solid var(--accent) !important;
+    }
+
+    /* --- CARDS E ÁREA DO NOTION --- */
     .notion-card {
-        background: var(--bg-card);
-        border: 1px solid var(--border-line);
-        border-radius: 10px;
-        padding: 24px;
-        margin: 16px 0;
-        box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+        background: var(--bg-card) !important;
+        border: 1px solid var(--border-line) !important;
+        border-radius: 10px !important;
+        padding: 24px !important;
+        margin: 16px 0 !important;
     }
-    
-    /* --- BOTÕES NO ESTILO "ENTRAR" DA MAKE --- */
+
+    /* --- BOTÕES NO PADRÃO DA MARCA --- */
     .stButton > button, [data-testid="stDownloadButton"] > button {
         background-color: var(--accent) !important;
         color: #ffffff !important;
@@ -106,32 +100,27 @@ FUTURISTIC_CSS = """
         border-radius: 8px !important;
         padding: 12px 24px !important;
         font-weight: 600 !important;
+        width: 100% !important;
         transition: all 0.2s ease !important;
-        box-shadow: 0 2px 4px rgba(0,0,0,0.1);
     }
-    
+
     .stButton > button:hover, [data-testid="stDownloadButton"] > button:hover {
         background-color: var(--accent-hover) !important;
-        transform: translateY(-1px);
-        box-shadow: 0 4px 8px rgba(0,168,84,0.3);
+        box-shadow: 0 4px 12px rgba(0, 168, 84, 0.25) !important;
     }
-    
-    /* --- NOTIFICAÇÕES E ALERTAS ESTILIZADOS --- */
-    div[data-testid="stNotification"] {
+
+    /* --- INPUTS E DRAG 'N DROP (UPLOADER) --- */
+    [data-testid="stFileUploaderDropzone"] {
         background-color: var(--bg-card) !important;
-        border: 1px solid var(--border-line) !important;
-        border-radius: 8px !important;
+        border: 1px dashed var(--border-line) !important;
     }
-    
-    /* Estilo customizado para mensagens de erro/aviso idênticas à imagem */
-    .error-box {
-        background-color: var(--bg-error);
-        border: 1px solid var(--border-error);
-        color: var(--text-error) !important;
-        padding: 14px;
-        border-radius: 8px;
-        font-size: 14px;
-        margin: 10px 0;
+
+    /* --- RESPONSIVIDADE COMPLETA --- */
+    @media (max-width: 768px) {
+        .stColumns {
+            flex-direction: column !important;
+            gap: 12px !important;
+        }
     }
 </style>
 """
