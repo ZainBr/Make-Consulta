@@ -555,21 +555,7 @@ if uploaded_files:
         if "token_notion_usuario" not in st.session_state:
             url_notion_auth = gerar_link_notion()
             # Redireciona na mesma aba usando JavaScript
-            st.markdown(f"""
-                <a href="{url_notion_auth}" target="_self" style="
-                    display: inline-block;
-                    padding: 10px 24px;
-                    background: transparent;
-                    border: 1px solid #222226;
-                    color: #a3a3a8;
-                    border-radius: 4px;
-                    font-weight: 500;
-                    font-size: 14px;
-                    text-decoration: none;
-                    transition: all 0.3s;
-                    letter-spacing: 0.05em;
-                ">🔑 CONECTAR MEU NOTION</a>
-            """, unsafe_allow_html=True)
+            st.link_button("🔑 CONECTAR MEU NOTION", url_notion_auth)
             st.caption("Cada colaborador precisa se autenticar uma vez por sessão para enviar os dados para seu respectivo espaço de trabalho.")
         else:
             st.success("✅ Você está conectado no Notion.")
