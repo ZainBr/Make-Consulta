@@ -514,8 +514,31 @@ if uploaded_files:
         if "token_notion_usuario" not in st.session_state:
             url_notion_auth = gerar_link_notion()
             
-            # Aqui está o truque: Usamos o link_button padrão, mas ele herda as regras CSS premium que colocamos lá em cima!
-            st.link_button("🔑 CONECTAR MEU NOTION", url_notion_auth, use_container_width=True)
+            # Botão em HTML Puro estruturado para abrir na mesma guia (_top) sem bugar o clique
+            st.markdown(f"""
+                <a href="{url_notion_auth}" target="_top" style="
+                    text-decoration: none; 
+                    display: block; 
+                    width: 100%;
+                ">
+                    <button style="
+                        width: 100%;
+                        background-color: transparent;
+                        border: 1px solid var(--border-line);
+                        color: var(--text-secondary);
+                        border-radius: 4px;
+                        padding: 10px 24px;
+                        font-weight: 500;
+                        font-size: 16px;
+                        text-align: center;
+                        cursor: pointer;
+                        transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+                    " onmouseover="this.style.backgroundColor='var(--accent-soft)'; this.style.borderColor='var(--accent)'; this.style.color='var(--text-white)'; this.style.transform='scale(1.01) translateY(-2px)'; this.style.boxShadow='0 8px 24px rgba(62, 207, 158, 0.16)';" 
+                       onmouseout="this.style.backgroundColor='transparent'; this.style.borderColor='var(--border-line)'; this.style.color='var(--text-secondary)'; this.style.transform='none'; this.style.boxShadow='none';">
+                        🔑 CONECTAR MEU NOTION
+                    </button>
+                </a>
+            """, unsafe_allow_html=True)
             
             st.caption("Cada colaborador precisa se autenticar uma vez por sessão para enviar os dados para seu respectivo espaço de trabalho.")
         else:
