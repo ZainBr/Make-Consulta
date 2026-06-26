@@ -534,18 +534,34 @@ if uploaded_files:
         if "token_notion_usuario" not in st.session_state:
             url_notion_auth = gerar_link_notion()
             
-            # Botão HTML corrigido para abrir na mesma aba sem travar o clique por conta do Sandbox do Streamlit
+            # ABORDAGEM NATIVA INTACTA: Sem tags de botão que o Streamlit bloqueia.
+            # Um link hipertexto estilizado em bloco que o navegador executa obrigatoriamente.
             st.markdown(f"""
-                <a href="{url_notion_auth}" target="_top" style="
-                    display: block; width: 100%; text-align: center; text-decoration: none;
-                    background-color: transparent; border: 1px solid #222226; color: #a3a3a8;
-                    border-radius: 4px; padding: 10px 24px; font-weight: 500; font-size: 14px;
-                    cursor: pointer; box-sizing: border-box; transition: all 0.3s ease;
-                " onmouseover="this.style.backgroundColor='rgba(62, 207, 158, 0.15)'; this.style.borderColor='#3ecf9e'; this.style.color='#f4f4f5';" 
-                   onmouseout="this.style.backgroundColor='transparent'; this.style.borderColor='#222226'; this.style.color='#a3a3a8';">
-                    🔑 CONECTAR MEU NOTION
-                </a>
+                <div style="text-align: center; width: 100%;">
+                    <a href="{url_notion_auth}" target="_top" style="
+                        display: block;
+                        width: 100%;
+                        text-align: center;
+                        text-decoration: none !important;
+                        background-color: transparent;
+                        border: 1px solid #222226;
+                        color: #3ecf9e !important;
+                        border-radius: 4px;
+                        padding: 12px 24px;
+                        font-weight: 600;
+                        font-size: 14px;
+                        letter-spacing: 0.05em;
+                        cursor: pointer;
+                        box-sizing: border-box;
+                        transition: all 0.3s ease;
+                        box-shadow: inset 0 0 0 1px rgba(62, 207, 158, 0.05);
+                    " onmouseover="this.style.backgroundColor='rgba(62, 207, 158, 0.15)'; this.style.borderColor='#3ecf9e'; this.style.color='#f4f4f5';" 
+                       onmouseout="this.style.backgroundColor='transparent'; this.style.borderColor='#222226'; this.style.color='#3ecf9e';">
+                        🔑 CLIQUE AQUI PARA CONECTAR O NOTION
+                    </a>
+                </div>
             """, unsafe_allow_html=True)
+            
             st.caption("Cada colaborador precisa se autenticar uma vez por sessão para enviar os dados para seu respectivo espaço de trabalho.")
         else:
             st.success("✅ Você está conectado ao Notion.")
