@@ -528,20 +528,31 @@ if uploaded_files:
                 else:
                     st.error("Falha ao autenticar com o Notion. Tente novamente.")
 
-        if "token_notion_usuario" not in st.session_state:
+       if "token_notion_usuario" not in st.session_state:
             url_notion_auth = gerar_link_notion()
             
-            # Botão normal do Streamlit
-            if st.button("🔑 CONECTAR MEU NOTION", use_container_width=True):
-                # Usamos o componente de HTML nativo para forçar a execução do script no carregamento
-                import streamlit.components.v1 as components
-                components.html(f"""
-                    <script>
-                        window.top.location.href = "{url_notion_auth}";
-                    </script>
-                """, height=0, width=0)
-                st.stop()
-
+            # Criamos um botão HTML real. O segredo está no target="_top", 
+            # que força a aba principal do navegador a ir para o link do Notion imediatamente.
+            st.markdown(f"""
+                <a href="{url_notion_auth}" target="_top" style="text-decoration: none;">
+                    <div style="
+                        background-color: transparent;
+                        border: 1px solid var(--border-line);
+                        color: var(--text-secondary);
+                        border-radius: 4px;
+                        padding: 10px 24px;
+                        font-weight: 500;
+                        text-align: center;
+                        cursor: pointer;
+                        transition: all 0.3s ease;
+                    " onmouseover="this.style.backgroundColor='var(--accent-soft)'; this.style.borderColor='var(--accent)'; this.style.color='var(--text-white)';" 
+                       onmouseout="this.style.backgroundColor='transparent'; this.style.borderColor='var(--border-line)'; this.style.color='var(--text-secondary)';">
+                        🔑 CONECTAR MEU NOTION
+                    </div>
+                </a>
+            """, unsafe_allow_html=True)
+            
+            st.write("") # Apenas um pequeno espaçamento visual
             st.caption("Cada colaborador precisa se autenticar uma vez por sessão para enviar os dados para seu respectivo espaço de trabalho.")
         else:
             st.success("✅ Você está conectado no Notion.")
