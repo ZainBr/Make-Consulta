@@ -285,35 +285,47 @@ def buscar_id_da_pagina_por_nome(token, nome_padrao="Notes"):
         "Content-Type": "application/json",
         "Notion-Version": "2022-06-28"
     }
-    
-    # Tentativa 1: Buscar pelo nome padrão "Notes"
-    payload_busca = {
-        "query": nome_padrao,
-        "filter": {"value": "database", "property": "object"},
-        "page_size": 1
-    }
-    
+
+    def _get_nome_database(resultado):
+        try:
+            titulo = resultado.get("title", [])
+            if titulo:
+                return titulo[0].get("plain_text", "Sem nome")
+        except:
+            pass
+        return "Sem nome"
+
+    def _is_database_valido(resultado):
+        return resultado.get("object") == "database" and resultado.get("id")
+
     try:
+        # Tentativa 1: Buscar pelo nome padrao
+        payload_busca = {
+            "query": nome_padrao,
+            "filter": {"value": "database", "property": "object"},
+            "page_size": 10
+        }
         res = requests.post(url, json=payload_busca, headers=headers)
         if res.status_code == 200:
-            resultados = res.json().get("results", [])
+            resultados = [r for r in res.json().get("results", []) if _is_database_valido(r)]
             if resultados:
-                return resultados[0].get("id")
-        
-        # Tentativa 2: Se não achou "Notes", busca QUALQUER database que o usuário liberou o acesso
+                return resultados[0].get("id"), _get_nome_database(resultados[0]), resultados
+
+        # Tentativa 2: Busca geral, qualquer database liberado
         payload_geral = {
             "filter": {"value": "database", "property": "object"},
-            "page_size": 1
+            "page_size": 10
         }
         res_geral = requests.post(url, json=payload_geral, headers=headers)
         if res_geral.status_code == 200:
-            resultados_gerais = res_geral.json().get("results", [])
+            resultados_gerais = [r for r in res_geral.json().get("results", []) if _is_database_valido(r)]
             if resultados_gerais:
-                return resultados_gerais[0].get("id")
-                
-        return None
+                return resultados_gerais[0].get("id"), _get_nome_database(resultados_gerais[0]), resultados_gerais
+
     except Exception:
-        return None
+        pass
+
+    return None, None, []
 # --- HEADER MINIMALISTA ---
 col1, col2, col3 = st.columns([1, 2, 1])
 with col2:
@@ -542,43 +554,55 @@ if uploaded_files:
 
         if "token_notion_usuario" not in st.session_state:
             url_notion_auth = gerar_link_notion()
-            st.link_button("🔑 CONECTAR MEU NOTION", url_notion_auth)
+            # Redireciona na mesma aba usando JavaScript
+            st.markdown(f"""
+                <a href="{url_notion_auth}" target="_self" style="
+                    display: inline-block;
+                    padding: 10px 24px;
+                    background: transparent;
+                    border: 1px solid #222226;
+                    color: #a3a3a8;
+                    border-radius: 4px;
+                    font-weight: 500;
+                    font-size: 14px;
+                    text-decoration: none;
+                    transition: all 0.3s;
+                    letter-spacing: 0.05em;
+                ">🔑 CONECTAR MEU NOTION</a>
+            """, unsafe_allow_html=True)
             st.caption("Cada colaborador precisa se autenticar uma vez por sessão para enviar os dados para seu respectivo espaço de trabalho.")
         else:
             st.success("✅ Você está conectado no Notion.")
             
             # Busca automática do ID e do Nome da página em segundo plano
-            if "id_notion_automatico" not in st.session_state or not st.session_state["id_notion_automatico"]:
-                with st.spinner("Localizando sua página de destino no Notion..."):
+            if "id_notion_automatico" not in st.session_state:
+                with st.spinner("Localizando suas páginas no Notion..."):
                     token_atual = st.session_state["token_notion_usuario"]
-                    
-                    # Roda a nossa busca inteligente
-                    url_busca = "https://api.notion.com/v1/search"
-                    headers_busca = {"Authorization": f"Bearer {token_atual}", "Notion-Version": "2022-06-28"}
-                    
-                    # Tenta achar "Notes" primeiro, se não, pega a primeira database disponível
-                    id_encontrado = buscar_id_da_pagina_por_nome(token_atual, "Notes")
-                    
+                    id_encontrado, nome_encontrado, todos_resultados = buscar_id_da_pagina_por_nome(token_atual, "Notes")
+
                     if id_encontrado:
                         st.session_state["id_notion_automatico"] = id_encontrado
-                        
-                        # Puxa o nome real da página para mostrar na tela
-                        try:
-                            res_nome = requests.get(f"https://api.notion.com/v1/databases/{id_encontrado}", headers=headers_busca)
-                            nome_real = res_nome.json().get("title", [{}])[0].get("plain_text", "Minha Lista")
-                            st.session_state["nome_notion_automatico"] = nome_real
-                        except:
-                            st.session_state["nome_notion_automatico"] = "Página Conectada"
+                        st.session_state["nome_notion_automatico"] = nome_encontrado or "Página Conectada"
+                        # Salva lista de opções disponíveis: [(nome, id), ...]
+                        opcoes = [(r.get("title", [{}])[0].get("plain_text", "Sem nome") if r.get("title") else "Sem nome", r.get("id")) for r in todos_resultados]
+                        st.session_state["opcoes_notion"] = opcoes
                     else:
                         st.session_state["id_notion_automatico"] = None
+                        st.session_state["opcoes_notion"] = []
 
             id_final_tabela = st.session_state.get("id_notion_automatico")
             nome_pagina_detectada = st.session_state.get("nome_notion_automatico", "Notas")
+            opcoes_disponiveis = st.session_state.get("opcoes_notion", [])
 
             if id_final_tabela:
-                # Mostra ao usuário o nome exato da página que o app detectou no Notion dele
-                
-                
+                # Mostra o nome da página detectada e opção de trocar se houver mais de uma
+                st.info(f"📄 Página detectada: **{nome_pagina_detectada}**")
+                if len(opcoes_disponiveis) > 1:
+                    nomes_opcoes = [f"{nome}" for nome, _ in opcoes_disponiveis]
+                    escolha = st.selectbox("Escolher outra página (opcional):", nomes_opcoes, index=0)
+                    idx_escolhido = nomes_opcoes.index(escolha)
+                    id_final_tabela = opcoes_disponiveis[idx_escolhido][1]
+
                 if st.button("🚀 TRANSMITIR REGISTROS PARA O MEU NOTION"):
                     barra_envio = st.progress(0)
                     sucessos, falhas = 0, 0
