@@ -493,7 +493,7 @@ if uploaded_files:
         cols[3].metric("PARCEIROS", len(df[df['Código do parceiro'] != 'N/A']))
 
     with tab3:
-        st.markdown("### 🌐 Integração Corporativa Cloud")
+        st.markdown("### Created By Zainbr")
         
         parametros_url = st.query_params
         if "code" in parametros_url and "token_notion_usuario" not in st.session_state:
@@ -571,7 +571,7 @@ if uploaded_files:
                         barra_envio.progress((i + 1) / total_envio)
                     
                     if falhas == 0:
-                        st.toast(f"Sucesso! {sucessos} notas fiscais integradas.", icon="✨")
+                        st.toast(f"Sucesso! {sucessos} notas fiscais integradas.", icon="S5NK4400067MZ")
                     else:
                         st.markdown(f'<div class="error-box">Erro no envio: {falhas} falhas detectadas. Verifique a estrutura das notas compartilhadas.</div>', unsafe_allow_html=True)
             else:
