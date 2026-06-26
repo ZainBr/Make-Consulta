@@ -278,42 +278,33 @@ def enviar_linha_para_notion(token, database_id, dados):
     except requests.RequestException as e:
         st.error(f"🔴 Falha crítica de rede: {e}")
         return False
-def buscar_id_da_pagina_por_nome(token, nome_padrao="Notes"):
+def listar_databases_disponiveis(token):
+    """Busca e retorna uma lista com os dicionários {'id': ..., 'title': ...} de todas as bases de dados acessíveis."""
     url = "https://api.notion.com/v1/search"
     headers = {
         "Authorization": f"Bearer {token}",
         "Content-Type": "application/json",
         "Notion-Version": "2022-06-28"
     }
-    
-    # Tentativa 1: Buscar pelo nome padrão "Notes"
-    payload_busca = {
-        "query": nome_padrao,
+    payload = {
         "filter": {"value": "database", "property": "object"},
-        "page_size": 1
+        "page_size": 50
     }
-    
     try:
-        res = requests.post(url, json=payload_busca, headers=headers)
+        res = requests.post(url, json=payload, headers=headers)
         if res.status_code == 200:
             resultados = res.json().get("results", [])
-            if resultados:
-                return resultados[0].get("id")
-        
-        # Tentativa 2: Se não achou "Notes", busca QUALQUER database que o usuário liberou o acesso
-        payload_geral = {
-            "filter": {"value": "database", "property": "object"},
-            "page_size": 1
-        }
-        res_geral = requests.post(url, json=payload_geral, headers=headers)
-        if res_geral.status_code == 200:
-            resultados_gerais = res_geral.json().get("results", [])
-            if resultados_gerais:
-                return resultados_gerais[0].get("id")
-                
-        return None
+            lista_final = []
+            for db in resultados:
+                db_id = db.get("id")
+                # Extrai o título textual do database tratando estruturas vazias
+                titulos = db.get("title", [])
+                nome_db = titulos[0].get("plain_text", "Sem título") if titulos else "Tabela sem nome"
+                lista_final.append({"id": db_id, "title": nome_db})
+            return lista_final
+        return []
     except Exception:
-        return None
+        return []
 # --- HEADER MINIMALISTA ---
 col1, col2, col3 = st.columns([1, 2, 1])
 with col2:
@@ -533,72 +524,74 @@ if uploaded_files:
                 resposta_oauth = obter_access_token(codigo_retorno)
                 if resposta_oauth:
                     st.session_state["token_notion_usuario"] = resposta_oauth["access_token"]
-                    if "duplicated_template_id" in resposta_oauth:
-                        st.session_state["id_tabela_usuario"] = resposta_oauth["duplicated_template_id"]
+                    # Limpa buscas antigas para forçar recarregamento do novo usuário
+                    st.session_state["databases_disponiveis"] = None 
                     st.toast("🔒 Conectado com sucesso ao Notion!", icon="✅")
                     st.query_params.clear()
                 else:
-                    st.error("Falha ao autenticar com o Notion. Entre em contato com o Diego ou tente novamente.")
+                    st.error("Falha ao autenticar com o Notion. Tente novamente.")
 
         if "token_notion_usuario" not in st.session_state:
             url_notion_auth = gerar_link_notion()
-            st.link_button("🔑 CONECTAR MEU NOTION", url_notion_auth)
+            
+            # Botão HTML corrigido para abrir na mesma aba sem travar o clique por conta do Sandbox do Streamlit
+            st.markdown(f"""
+                <a href="{url_notion_auth}" target="_top" style="
+                    display: block; width: 100%; text-align: center; text-decoration: none;
+                    background-color: transparent; border: 1px solid #222226; color: #a3a3a8;
+                    border-radius: 4px; padding: 10px 24px; font-weight: 500; font-size: 14px;
+                    cursor: pointer; box-sizing: border-box; transition: all 0.3s ease;
+                " onmouseover="this.style.backgroundColor='rgba(62, 207, 158, 0.15)'; this.style.borderColor='#3ecf9e'; this.style.color='#f4f4f5';" 
+                   onmouseout="this.style.backgroundColor='transparent'; this.style.borderColor='#222226'; this.style.color='#a3a3a8';">
+                    🔑 CONECTAR MEU NOTION
+                </a>
+            """, unsafe_allow_html=True)
             st.caption("Cada colaborador precisa se autenticar uma vez por sessão para enviar os dados para seu respectivo espaço de trabalho.")
         else:
-            st.success("✅ Você está conectado no Notion.")
+            st.success("✅ Você está conectado ao Notion.")
+            token_atual = st.session_state["token_notion_usuario"]
             
-            # Busca automática do ID e do Nome da página em segundo plano
-            if "id_notion_automatico" not in st.session_state or not st.session_state["id_notion_automatico"]:
-                with st.spinner("Localizando sua página de destino no Notion..."):
-                    token_atual = st.session_state["token_notion_usuario"]
-                    
-                    # Roda a nossa busca inteligente
-                    url_busca = "https://api.notion.com/v1/search"
-                    headers_busca = {"Authorization": f"Bearer {token_atual}", "Notion-Version": "2022-06-28"}
-                    
-                    # Tenta achar "Notes" primeiro, se não, pega a primeira database disponível
-                    id_encontrado = buscar_id_da_pagina_por_nome(token_atual, "Notes")
-                    
-                    if id_encontrado:
-                        st.session_state["id_notion_automatico"] = id_encontrado
-                        
-                        # Puxa o nome real da página para mostrar na tela
-                        try:
-                            res_nome = requests.get(f"https://api.notion.com/v1/databases/{id_encontrado}", headers=headers_busca)
-                            nome_real = res_nome.json().get("title", [{}])[0].get("plain_text", "Minha Lista")
-                            st.session_state["nome_notion_automatico"] = nome_real
-                        except:
-                            st.session_state["nome_notion_automatico"] = "Página Conectada"
-                    else:
-                        st.session_state["id_notion_automatico"] = None
+            # Busca automática de todas as tabelas liberadas pelo usuário atual
+            if "databases_disponiveis" not in st.session_state or not st.session_state["databases_disponiveis"]:
+                with st.spinner("Localizando suas tabelas e páginas de destino..."):
+                    dbs = listar_databases_disponiveis(token_atual)
+                    st.session_state["databases_disponiveis"] = dbs
 
-            id_final_tabela = st.session_state.get("id_notion_automatico")
-            nome_pagina_detectada = st.session_state.get("nome_notion_automatico", "Notas")
+            lista_dbs = st.session_state.get("databases_disponiveis", [])
 
-            if id_final_tabela:
-                # Mostra ao usuário o nome exato da página que o app detectou no Notion dele
+            if lista_dbs:
+                # Cria uma lista de exibição amigável para o usuário: "Nome da Tabela (ID resumido)"
+                opcoes_tela = [f"📊 {item['title']} ({item['id'][:8]}...)" for item in lista_dbs]
                 
+                st.markdown("#### 🎯 Selecione onde deseja salvar as Notas:")
+                selecao = st.selectbox("Bases de dados encontradas no seu Notion:", opciones_tela)
+                
+                # Recupera o ID real correspondente à opção que ele clicou na tela
+                indice_selecionado = opciones_tela.index(selecao)
+                id_final_tabela = lista_dbs[indice_selecionado]["id"]
+                
+                st.write("") # Espaçador
                 
                 if st.button("🚀 TRANSMITIR REGISTROS PARA O MEU NOTION"):
                     barra_envio = st.progress(0)
                     sucessos, falhas = 0, 0
                     total_envio = len(df)
                     
-                    with st.spinner("Enviando linhas..."):
+                    with st.spinner("Transmitindo notas fiscais..."):
                         for i, (_, row_envio) in enumerate(df.iterrows()):
-                            if enviar_linha_para_notion(st.session_state["token_notion_usuario"], id_final_tabela, row_envio.to_dict()):
+                            if enviar_linha_para_notion(token_atual, id_final_tabela, row_envio.to_dict()):
                                 sucessos += 1
                             else:
                                 falhas += 1
                             barra_envio.progress((i + 1) / total_envio)
                     
                     if falhas == 0:
-                        st.success(f"✨ Pronto! {sucessos} notas fiscais geradas com sucesso na sua página")
+                        st.success(f"✨ Pronto! {sucessos} notas fiscais geradas com sucesso na tabela selecionada!")
                     else:
-                        st.error(f"🔴 Erro no envio: {falhas} falhas detectadas. Verifique a estrutura das suas notas.")
+                        st.error(f"🔴 Transmissão concluída com {falhas} falhas. Verifique as permissões da tabela.")
             else:
-                st.error("❌ Nenhuma página ou lista de notas foi encontrada no seu Notion.")
-                st.warning("Certifique-se de que você selecionou e marcou a caixinha de pelo menos uma página ao clicar no botão 'Conectar meu Notion'.")
+                st.error("❌ Nenhuma tabela (Database) foi encontrada no seu Notion.")
+                st.warning("Importante: Quando a tela do Notion abrir para autenticar, certifique-se de marcar as caixinhas de seleção dando acesso às páginas/tabelas onde as notas devem ser inseridas.")
 
         st.markdown("---")
         st.markdown("#### 📥 Exportação Local Tradicional")
