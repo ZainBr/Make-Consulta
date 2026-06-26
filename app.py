@@ -531,14 +531,15 @@ if uploaded_files:
         if "token_notion_usuario" not in st.session_state:
             url_notion_auth = gerar_link_notion()
             
-            # Criamos o botão visual do Streamlit, mas se ele for clicado, 
-            # injetamos um JavaScript que força o navegador a mudar de página de forma limpa na mesma aba
+            # Botão normal do Streamlit
             if st.button("🔑 CONECTAR MEU NOTION", use_container_width=True):
-                st.markdown(f"""
+                # Usamos o componente de HTML nativo para forçar a execução do script no carregamento
+                import streamlit.components.v1 as components
+                components.html(f"""
                     <script>
                         window.top.location.href = "{url_notion_auth}";
                     </script>
-                """, unsafe_allow_html=True)
+                """, height=0, width=0)
                 st.stop()
 
             st.caption("Cada colaborador precisa se autenticar uma vez por sessão para enviar os dados para seu respectivo espaço de trabalho.")
