@@ -28,68 +28,90 @@ try:
 except Exception:
     REDIRECT_URI = "https://make-consulta-xvbe6b9ut9es6i6bbemudm.streamlit.app/"
 
-# --- CSS PREMIUM UNIFICADO (RESOLUÇÃO DE CONFLITO DE CORES) ---
+# --- CSS PREMIUM GLASSMORPHISM COM EFEITOS ESPECIAIS ---
 FUTURISTIC_CSS = """
 <style>
-    /* --- CORES CORPORATIVAS FIXAS (EVITA TELA DIVIDIDA) --- */
+    /* --- CORES CORPORATIVAS FIXAS --- */
     :root {
-        --bg-app: #04140e !important;       /* Verde escuro profundo principal */
-        --bg-sidebar: #020b08 !important;   /* Verde ainda mais escuro para a barra lateral */
-        --bg-card: #082218 !important;      /* Cards e elementos internos */
-        --border-line: #123a2b !important;  /* Divisórias suaves */
-        --accent: #00a854 !important;       /* Verde oficial do botão principal */
+        --bg-app: #030f0a !important;       /* Verde escuro profundo de fundo */
+        --bg-sidebar: rgba(2, 11, 8, 0.85) !important; /* Sidebar translúcida */
+        --bg-card-glass: rgba(8, 34, 24, 0.65) !important; /* Janelas Flutuantes Translúcidas */
+        --border-glass: rgba(0, 168, 84, 0.25) !important;  /* Borda esmeralda sutil */
+        --accent: #00a854 !important;       /* Verde oficial da marca */
         --accent-hover: #00c261 !important;
-        --text-white: #ffffff !important;   /* Todos os textos em branco */
+        --text-white: #ffffff !important;   
         --text-secondary: #a3b8b0 !important;
+        
+        --bg-error-glass: rgba(139, 9, 9, 0.3) !important;
+        --border-error: rgba(255, 118, 118, 0.4) !important;
     }
 
-    /* --- FORÇAR FUNCS GERAIS DO STREAMLIT --- */
+    /* --- ANIMAÇÕES ESPECIAIS --- */
+    @keyframes floatWindow {
+        0% { transform: translateY(0px); box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.3); }
+        50% { transform: translateY(-6px); box-shadow: 0 15px 35px 0 rgba(0, 168, 84, 0.15); }
+        100% { transform: translateY(0px); box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.3); }
+    }
+
+    @keyframes glowPulse {
+        0% { border-color: rgba(0, 168, 84, 0.2); }
+        50% { border-color: rgba(0, 242, 121, 0.5); }
+        100% { border-color: rgba(0, 168, 84, 0.2); }
+    }
+
+    /* --- UNIFICAÇÃO DO DESIGN DO APLICATIVO --- */
     body, .stApp, [data-testid="stAppViewContainer"], [data-testid="stHeader"] {
         background-color: var(--bg-app) !important;
-        background-image: none !important;
+        background-image: radial-gradient(circle at 50% 0%, rgba(0, 168, 84, 0.12) 0%, transparent 75%) !important;
         color: var(--text-white) !important;
     }
 
-    /* Remove o topo branco e força a cor escura */
     [data-testid="stHeader"] {
-        background-color: var(--bg-app) !important;
+        background-color: transparent !important;
     }
 
-    /* --- UNIFICAÇÃO DA SIDEBAR (FIM DA SIDEBAR CLARA) --- */
+    /* --- SIDEBAR FLUTUANTE TRANSLÚCIDA --- */
     [data-testid="stSidebar"], [data-testid="stSidebar"] section {
         background-color: var(--bg-sidebar) !important;
-        border-right: 1px solid var(--border-line) !important;
+        backdrop-filter: blur(20px) !important;
+        -webkit-backdrop-filter: blur(20px) !important;
+        border-right: 1px solid var(--border-glass) !important;
     }
     
-    /* Força os textos da sidebar para branco */
     [data-testid="stSidebar"] *, [data-testid="stSidebar"] label, [data-testid="stSidebar"] p {
         color: var(--text-white) !important;
     }
 
-    /* --- SUBSTITUIÇÃO DO AZUL NATIVO DA BARRA DE PROGRESSO --- */
-    .stProgress > div > div > div > div {
-        background-color: var(--accent) !important;
+    /* --- JANELAS FLUTUANTES (EFFECT GLASSMORPHISM) --- */
+    .notion-card, div[data-testid="stNotification"], .stAlert {
+        background: var(--bg-card-glass) !important;
+        backdrop-filter: blur(12px) !important;
+        -webkit-backdrop-filter: blur(12px) !important;
+        border: 1px solid var(--border-glass) !important;
+        border-radius: 14px !important;
+        padding: 24px !important;
+        margin: 18px 0 !important;
+        animation: floatWindow 6s ease-in-out infinite, glowPulse 4s infinite;
     }
 
-    /* --- ALINHAMENTO DAS ABAS (TABS) --- */
+    /* --- ABAS (TABS) CUSTOMIZADAS --- */
     button[data-baseweb="tab"] {
         color: var(--text-secondary) !important;
         background-color: transparent !important;
         border: none !important;
+        padding: 10px 20px !important;
     }
     
     button[data-baseweb="tab"][aria-selected="true"] {
         color: var(--accent) !important;
-        border-bottom: 2px solid var(--accent) !important;
+        border-bottom: 3px solid var(--accent) !important;
+        font-weight: bold !important;
     }
 
-    /* --- CARDS E ÁREA DO NOTION --- */
-    .notion-card {
-        background: var(--bg-card) !important;
-        border: 1px solid var(--border-line) !important;
-        border-radius: 10px !important;
-        padding: 24px !important;
-        margin: 16px 0 !important;
+    /* --- BARRA DE PROGRESSO COM BRILHO --- */
+    .stProgress > div > div > div > div {
+        background: linear-gradient(90deg, var(--accent), #00ff7f, var(--accent)) !important;
+        box-shadow: 0 0 10px var(--accent);
     }
 
     /* --- BOTÕES NO PADRÃO DA MARCA --- */
@@ -101,28 +123,39 @@ FUTURISTIC_CSS = """
         padding: 12px 24px !important;
         font-weight: 600 !important;
         width: 100% !important;
-        transition: all 0.2s ease !important;
+        transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1) !important;
     }
 
     .stButton > button:hover, [data-testid="stDownloadButton"] > button:hover {
         background-color: var(--accent-hover) !important;
-        box-shadow: 0 4px 12px rgba(0, 168, 84, 0.25) !important;
+        transform: scale(1.01) translateY(-2px) !important;
+        box-shadow: 0 8px 20px rgba(0, 168, 84, 0.4) !important;
     }
 
-    /* --- INPUTS E DRAG 'N DROP (UPLOADER) --- */
+    /* CAIXA DE UPLOAD COESA */
     [data-testid="stFileUploaderDropzone"] {
-        background-color: var(--bg-card) !important;
-        border: 1px dashed var(--border-line) !important;
+        background-color: rgba(8, 34, 24, 0.4) !important;
+        border: 2px dashed var(--border-glass) !important;
+        border-radius: 12px !important;
     }
 
-    /* --- RESPONSIVIDADE COMPLETA --- */
+    /* CAIXA DE ERRO PREMIUM GLASS */
+    .error-box {
+        background: var(--bg-error-glass) !important;
+        backdrop-filter: blur(10px) !important;
+        border: 1px solid var(--border-error) !important;
+        color: #ff7676 !important;
+        padding: 14px;
+        border-radius: 10px;
+        font-size: 14px;
+        margin: 10px 0;
+    }
+
     @media (max-width: 768px) {
-        .stColumns {
-            flex-direction: column !important;
-            gap: 12px !important;
-        }
+        .stColumns { flex-direction: column !important; gap: 12px !important; }
     }
 </style>
+"""
 """
 
 st.markdown(FUTURISTIC_CSS, unsafe_allow_html=True)
