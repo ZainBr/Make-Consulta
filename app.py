@@ -511,32 +511,30 @@ if uploaded_files:
                 else:
                     st.error("Falha ao autenticar com o Notion. Entre em contato com o Diego ou tente novamente.")
 
-        if "token_notion_usuario" not in st.session_state:
+       if "token_notion_usuario" not in st.session_state:
             url_notion_auth = gerar_link_notion()
             
-            # Botão em HTML Puro estruturado para abrir na mesma guia (_top) sem bugar o clique
+            # Formato corrigido: O link <a> funciona como o botão principal, evitando o bloqueio do iframe
             st.markdown(f"""
                 <a href="{url_notion_auth}" target="_top" style="
-                    text-decoration: none; 
-                    display: block; 
+                    display: block;
                     width: 100%;
-                ">
-                    <button style="
-                        width: 100%;
-                        background-color: transparent;
-                        border: 1px solid var(--border-line);
-                        color: var(--text-secondary);
-                        border-radius: 4px;
-                        padding: 10px 24px;
-                        font-weight: 500;
-                        font-size: 16px;
-                        text-align: center;
-                        cursor: pointer;
-                        transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-                    " onmouseover="this.style.backgroundColor='var(--accent-soft)'; this.style.borderColor='var(--accent)'; this.style.color='var(--text-white)'; this.style.transform='scale(1.01) translateY(-2px)'; this.style.boxShadow='0 8px 24px rgba(62, 207, 158, 0.16)';" 
-                       onmouseout="this.style.backgroundColor='transparent'; this.style.borderColor='var(--border-line)'; this.style.color='var(--text-secondary)'; this.style.transform='none'; this.style.boxShadow='none';">
-                        🔑 CONECTAR MEU NOTION
-                    </button>
+                    text-align: center;
+                    text-decoration: none;
+                    background-color: transparent;
+                    border: 1px solid #222226;
+                    color: #a3a3a8;
+                    border-radius: 4px;
+                    padding: 10px 24px;
+                    font-weight: 500;
+                    font-size: 14px;
+                    font-family: inherit;
+                    cursor: pointer;
+                    box-sizing: border-box;
+                    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+                " onmouseover="this.style.backgroundColor='rgba(62, 207, 158, 0.15)'; this.style.borderColor='#3ecf9e'; this.style.color='#f4f4f5'; this.style.transform='scale(1.02) translateY(-2px)'; this.style.boxShadow='0 8px 24px rgba(62, 207, 158, 0.16)';" 
+                   onmouseout="this.style.backgroundColor='transparent'; this.style.borderColor='#222226'; this.style.color='#a3a3a8'; this.style.transform='none'; this.style.boxShadow='none';">
+                    🔑 CONECTAR MEU NOTION
                 </a>
             """, unsafe_allow_html=True)
             
