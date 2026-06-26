@@ -571,7 +571,7 @@ if uploaded_files:
                         barra_envio.progress((i + 1) / total_envio)
                     
                     if falhas == 0:
-                        st.toast(f"Sucesso! {sucessos} notas fiscais integradas.", icon="S5NK4400067MZ")
+                        st.toast(f"Sucesso! {sucessos} notas fiscais integradas.", icon="🦖")
                     else:
                         st.markdown(f'<div class="error-box">Erro no envio: {falhas} falhas detectadas. Verifique a estrutura das notas compartilhadas.</div>', unsafe_allow_html=True)
             else:
