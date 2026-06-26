@@ -531,12 +531,16 @@ if uploaded_files:
         if "token_notion_usuario" not in st.session_state:
             url_notion_auth = gerar_link_notion()
             
-            # SOLUÇÃO PARA ABRIR NA MESMA GUIA (TARGET="_SELF")
-            st.markdown(f"""
-                <a href="{url_notion_auth}" target="_self" class="btn-oauth">
-                    🔑 CONECTAR MEU NOTION
-                </a>
-            """, unsafe_allow_html=True)
+            # Criamos o botão visual do Streamlit, mas se ele for clicado, 
+            # injetamos um JavaScript que força o navegador a mudar de página de forma limpa na mesma aba
+            if st.button("🔑 CONECTAR MEU NOTION", use_container_width=True):
+                st.markdown(f"""
+                    <script>
+                        window.top.location.href = "{url_notion_auth}";
+                    </script>
+                """, unsafe_allow_html=True)
+                st.stop()
+
             st.caption("Cada colaborador precisa se autenticar uma vez por sessão para enviar os dados para seu respectivo espaço de trabalho.")
         else:
             st.success("✅ Você está conectado no Notion.")
